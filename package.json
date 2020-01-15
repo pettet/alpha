@@ -1,0 +1,11 @@
+{
+  "name": "alpha",
+  "version": "0.0.0-prealpha",
+  "main": "./libs/Launcher.js",
+  "description": "",
+  "keywords": "",
+  "homepage": "https://github.com/pettet/alpha",
+  "license": "NONE",
+  "private": true,
+  "author": "Robert Pettet <pettet@hotmail.ca> (https://kasper.host/)"
+}
