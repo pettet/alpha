@@ -14,17 +14,8 @@ function Launcher(){
 
   log.info("Launcher","init");
 
-  var httpServer = new (require(path.join(L.DATA,"modules","http-server")))(L);
-
-  httpServer.getRouter().use(function __getIndex(req,res,next){
-    if(req.method!=="GET"||req.url!=="/")
-     return next();
-    res.setHeader("Content-type","text/html");
-    res.writeHead(200);
-    res.end("<html><head><title>Kasper Security</title></head><body>network mitigation</body></html>");
-  });
-
-  httpServer.listen(8000);
+  var appDir = path.join(L.DATA,"apps","kasper-host");
+  var webapp = new (require(path.join(L.DATA,"modules","webapp")))(L,appDir);
 
 }
 
