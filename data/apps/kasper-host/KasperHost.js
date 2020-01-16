@@ -13,12 +13,13 @@ function KasperHost(L,httpServer){
     database: "alpha"
   });
 
+  var themer = new (require(path.join(L.DATA,"modules/themer")))(L,httpServer,{});
+
   httpServer.getRouter().use(function __getIndex(req,res,next){
     if(req.method!=="GET"||req.path!=="/")
      return next();
-    res.setHeader("Content-type","text/html");
-    res.writeHead(200);
-    res.end("<html><head><title>Kasper Security</title></head><body>Network Mitigation</body></html>");
+    let opts = {templates:["head.html","blank.html","foot.html"]};
+    themer.render(req,res,opts);
   });
 
 
