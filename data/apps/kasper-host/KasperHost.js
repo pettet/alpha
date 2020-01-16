@@ -6,7 +6,7 @@ function KasperHost(L,httpServer){
 
 
   httpServer.getRouter().use(function __getIndex(req,res,next){
-    if(req.method!=="GET"||req.url!=="/")
+    if(req.method!=="GET"||req.path!=="/")
      return next();
     res.setHeader("Content-type","text/html");
     res.writeHead(200);
