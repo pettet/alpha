@@ -33,39 +33,26 @@ function Themer(L,httpServer,cfg){
 
   themer.render = function __render(req,res,opts){
     if(typeof opts!=="object") opts = {};
+    if(!opts.hasOwnProperty("statusCode")) opts.statusCode = 200;
+    if(!opts.hasOwnProperty("contentType")) opts.contentType = "text/html";
     if(!opts.hasOwnProperty("templates")) opts.templates = [];
     if(!opts.hasOwnProperty("replacements")) opts.replacements = {};
-
-    res.setHeader("Content-type","text/html");
-    res.writeHead(200);
+    res.setHeader("Content-type",opts.contentType);
+    res.writeHead(opts.statusCode);
     streamTemplates(res,opts.templates,function(){
       res.end();
     },0);
   };
 
 
-  themer.static = function __static(prefix,dir){
-    httpServer.getRouter().use(function __staticWrapper(req,res,next){
-      if(req.method!=="GET"||!req.url.startsWith(prefix))
-        return next();
-      let localFile = path.join(dir,req.url.slice(prefix.length));
-      fs.lstat(localFile,function __lStat(err,stats){
-        if(err)
-          return next();
-        let ext = path.extname(localFile).slice(1);
-        switch(ext){
-          case "css":
-            res.setHeader("Content-type","text/css");
-            break;
-          case "js":
-            res.setHeader("Content-type","application/javascript");
-            break;
-        }
-        res.writeHead(200);
-        fs.createReadStream(localFile).pipe(res);
-      });
-    });
-  };
+//==
+
+var themeMod = require(themeDir);
+if(typeof themeMod==="function"){
+  themeMod = new themeMod(L,httpServer,themer,cfg);
+}
+
+//==
 
 
 }

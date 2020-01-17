@@ -1,4 +1,6 @@
 
+const fs = require("fs");
+const path = require("path");
 const http = require("http");
 const qs = require("querystring");
 const { performance, PerformanceObserver } = require("perf_hooks");
@@ -57,6 +59,30 @@ function HttpServer(L,cfg){
   httpServer.getRouter = function __getRouter(){
     return router;
   };
+
+  router.static = function __static(prefix,dir){
+      router.use(function __staticWrapper(req,res,next){
+        if(req.method!=="GET"||!req.url.startsWith(prefix))
+          return next();
+        let localFile = path.join(dir,req.url.slice(prefix.length));
+        fs.lstat(localFile,function __lStat(err,stats){
+          if(err)
+            return next();
+          let ext = path.extname(localFile).slice(1);
+          switch(ext){
+            case "css":
+              res.setHeader("Content-type","text/css");
+              break;
+            case "js":
+              res.setHeader("Content-type","application/javascript");
+              break;
+          }
+          res.setHeader("Cache-control","max-age=604800");
+          res.writeHead(200);
+          fs.createReadStream(localFile).pipe(res);
+        });
+      });
+    };
 
   return httpServer;
 }

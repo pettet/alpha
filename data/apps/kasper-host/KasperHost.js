@@ -15,6 +15,8 @@ function KasperHost(L,httpServer){
 
   var themer = new (require(path.join(L.DATA,"modules/themer")))(L,httpServer,{});
 
+  httpServer.getRouter().static("/images",path.join(L.DATA,"apps/kasper-host/images"));
+
   httpServer.getRouter().use(function __getIndex(req,res,next){
     if(req.method!=="GET"||req.path!=="/")
      return next();
