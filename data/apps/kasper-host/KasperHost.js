@@ -17,7 +17,7 @@ function KasperHost(L,httpServer){
 
   httpServer.getRouter().static("/images",path.join(L.DATA,"apps/kasper-host/images"));
 
-
+  themer.addGlobalReplacement("BrandName","Kasper Security");
 
   httpServer.getRouter().use(function __getIndex(req,res,next){
     if(req.method!=="GET"||req.path!=="/")

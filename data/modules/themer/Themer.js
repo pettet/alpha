@@ -8,9 +8,12 @@ function Themer(L,httpServer,cfg){
   if(typeof cfg!=="object") cfg = {};
   if(!cfg.hasOwnProperty("default_theme")) cfg.default_theme = "default";
 
+  const Utility = require(path.join(L.LIBS,"Utility.js"));
+
   var themer = this;
   var themeDir = path.join(L.DATA,"themes",cfg.default_theme);
   var templatesDir = path.join(themeDir,"templates");
+  var _globalReplacements = [];
 
   function streamTemplates(stream,templates,finale,index){
     let next = function __finaleWrapper(){
@@ -30,6 +33,9 @@ function Themer(L,httpServer,cfg){
     next();
   }
 
+  themer.addGlobalReplacement = function __addGlobalReplacement(k,v){
+    _globalReplacements[k] = v;
+  };
 
   themer.render = function __render(req,res,opts){
     if(typeof opts!=="object") opts = {};
@@ -37,22 +43,25 @@ function Themer(L,httpServer,cfg){
     if(!opts.hasOwnProperty("contentType")) opts.contentType = "text/html";
     if(!opts.hasOwnProperty("templates")) opts.templates = [];
     if(!opts.hasOwnProperty("replacements")) opts.replacements = {};
+    for(let k in _globalReplacements){
+      if(!opts.replacements.hasOwnProperty(k))
+        opts.replacements[k] = _globalReplacements[k];
+    }
     res.setHeader("Content-type",opts.contentType);
     res.writeHead(opts.statusCode);
-    streamTemplates(res,opts.templates,function(){
-      res.end();
+    let outStream = new Utility.ReplaceStream({replacements:opts.replacements});
+    outStream.pipe(res);
+    streamTemplates(outStream,opts.templates,function(){
+      outStream.end();
     },0);
   };
 
 
-//==
 
-var themeMod = require(themeDir);
-if(typeof themeMod==="function"){
-  themeMod = new themeMod(L,httpServer,themer,cfg);
-}
-
-//==
+  var themeMod = require(themeDir);
+  if(typeof themeMod==="function"){
+    themeMod = new themeMod(L,httpServer,themer,cfg);
+  }
 
 
 }
