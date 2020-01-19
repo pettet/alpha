@@ -31,32 +31,44 @@ function KasperHost(L,httpServer){
   httpServer.getRouter().use(function __getServices(req,res,next){
     if(req.method!=="GET"||req.path!=="/services")
      return next();
-     let opts = {templates:["head.html","blank.html","foot.html"],replacements:{}};
-     opts.replacements.PageTitle = "Services - ${BrandName}";
-     opts.replacements.PageContent = "services page";
+    let opts = {templates:["head.html","blank.html","foot.html"],replacements:{}};
+    opts.replacements.PageTitle = "Services - ${BrandName}";
+    opts.replacements.PageContent = "services page";
     themer.render(req,res,opts);
   });
 
   httpServer.getRouter().use(function __getContact(req,res,next){
     if(req.method!=="GET"||req.path!=="/contact")
      return next();
-     let opts = {templates:["head.html","blank.html","foot.html"],replacements:{}};
-     opts.replacements.PageTitle = "Contact Us - ${BrandName}";
-     opts.replacements.PageContent = "contact page";
+    let opts = {templates:["head.html","blank.html","foot.html"],replacements:{}};
+    opts.replacements.PageTitle = "Contact Us - ${BrandName}";
+    opts.replacements.PageContent = "contact page";
     themer.render(req,res,opts);
   });
 
   httpServer.getRouter().use(function __getAuthIn(req,res,next){
     if(req.method!=="GET"||req.path!=="/auth-in")
      return next();
-     let opts = {templates:["head.html","blank.html","foot.html"],replacements:{}};
-     opts.replacements.PageTitle = "Login - ${BrandName}";
-     opts.replacements.PageContent = "login page";
+    let opts = {templates:["head.html","blank.html","foot.html"],replacements:{}};
+    opts.replacements.PageTitle = "Login - ${BrandName}";
+    opts.replacements.PageContent = "login page";
     themer.render(req,res,opts);
   });
 
 
 
+
+  httpServer.getRouter().use(function __getTest(req,res,next){
+    if(req.method!=="GET"||req.path!=="/test")
+     return next();
+   res.setHeader("Content-type","text/plain");
+   res.writeHead(200);
+   res.end("test");
+  });
+
+
+
+/*
   dbConn.getConnection(function(err,connection){
     if(err)
       throw err;
@@ -67,7 +79,7 @@ function KasperHost(L,httpServer){
       console.log(">>",results);
     });
   });
-
+*/
 
 
 
