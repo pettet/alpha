@@ -1,26 +1,38 @@
 
-const os = require("os");
+//const os = require("os");
+
 
 function Analytics(L,dbConn,httpServer,cfg){
 
-  function loadHit(req,res){
-    process.stdout.write("Analytics.loadHit"+os.EOL);
-    /*
-      dbConn.getConnection(function(err,connection){
-        if(err)
-          throw err;
-        connection.query("select 1;",function(err,results,fields){
-          connection.release();
-          if(err)
-            throw err;
-          console.log(">>",results);
-        });
-      });
-    */
+  var conn;
+  dbConn.getConnection(function(err,connection){
+    if(err){
+      console.log("ANA.logHit",err);
+      return;
+    }
+    conn = connection;
+    //conn.release();
+  });
+
+
+  function logHit(req,res){
+    res.on("finish",function __onResFinish(){
+      //console.log("__onResFinish");
+      //include a res.statusCode update here
+    });
+    conn.query("insert into alpha.m_ana_hits (url,ip,headers) values (?,?,?);",[
+      req.url,
+      res.__meta.ip,
+      JSON.stringify(req.headers)
+    ],function(err,results,fields){
+      if(err)
+        throw err;
+      //console.log(">>",results);
+    });
   }
 
   httpServer.getRouter().use(function __getAnalytics(req,res,next){
-    loadHit(req,res);
+    logHit(req,res);
     next();
   });
 
