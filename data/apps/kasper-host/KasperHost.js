@@ -13,6 +13,7 @@ function KasperHost(L,httpServer){
     database: "alpha"
   });
 
+  var analytics = new (require(path.join(L.DATA,"modules/analytics")))(L,dbConn,httpServer,{});
   var themer = new (require(path.join(L.DATA,"modules/themer")))(L,httpServer,{});
 
   httpServer.getRouter().static("/images",path.join(L.DATA,"apps/kasper-host/images"));
