@@ -11,7 +11,8 @@ function Launcher(){
   L.NOOP = function __noop(){};
 
   var log = L.log = new (require(path.join(L.LIBS,"Logger.js")))({
-    out_dir: path.join(L.ROOT,"logs")
+    out_dir: path.join(L.ROOT,"logs"),
+    pipe_stdout: true
   });
 
   log.info("Launcher","init");

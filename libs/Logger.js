@@ -9,7 +9,7 @@ function Logger(cfg){
   if(typeof cfg!=="object") cfg = {};
   if(!cfg.hasOwnProperty("display_level")) cfg.display_level = false;
   if(!cfg.hasOwnProperty("out_dir")) cfg.out_dir = path.join("./logs");
-  if(!cfg.hasOwnProperty("pipe_stdout")) cfg.pipe_stdout = true;
+  if(!cfg.hasOwnProperty("pipe_stdout")) cfg.pipe_stdout = false;
 
   cfg.stdoutWidth = process.stdout.columns;
   cfg.stdoutHeight = process.stdout.rows;
