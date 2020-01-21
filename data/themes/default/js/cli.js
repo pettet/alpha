@@ -1,14 +1,31 @@
 
-var ws = new WebSocket("wss://kasper.host/foo",["test-proto-000"]);
+function WebSocketCli(){
 
-ws.onopen = function __onopen(){
-  ws.send("msg from cli");
-};
+  var ws = new WebSocket("wss://kasper.host/api",["test-proto-000"]);
 
-ws.onerror = function __onerror(err){
-  console.log("ws error "+err);
-};
+  ws.sendPacket = function _sendPacket(packet){
+    ws.send(JSON.stringify(packet));
+  };
 
-ws.onmessage = function __onmessage(ev){
-  console.log("server: "+ev.data);
-};
+  ws.onopen = function __onopen(){
+    ws.sendPacket({msg:"msg from cli"});
+  };
+
+  ws.onerror = function __onerror(err){
+    console.log("ws error "+err);
+  };
+
+  ws.onmessage = function __onmessage(ev){
+    let packet;
+    try{
+      packet = JSON.parse(ev.data.trim());
+    }
+    catch(ex){
+      console.log("failed to parse incomming packet:",ex.message);
+    }
+    console.log("server:",packet);
+  };
+
+}
+
+var wsCli = new WebSocketCli;
