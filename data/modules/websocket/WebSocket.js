@@ -5,6 +5,8 @@ const moment = require("moment");
 
 
 function WebSocketServer(L,httpServer,cfg){
+
+  const log = L.log;
   if(typeof cfg!=="object") cfg = {};
 
   const wsServer = new ws.Server({
@@ -30,18 +32,19 @@ function WebSocketServer(L,httpServer,cfg){
 
 
   wsServer.on("connection",function _onWsConnection(ws,req){
-    log.trace("WS CONNECTED",req.__meta.ip,req.headers["sec-websocket-protocol"]);
+    log.verbose("WS CONNECTED",req.__meta.ip,req.headers["sec-websocket-protocol"]);
     ws.sendPacket = function _sendPacket(packet){
       ws.send(JSON.stringify(packet));
     };
     ws.on("message",function _onMsg(raw){
+      let packet;
       try{
-        raw = JSON.parse(raw.trim());
+        packet = JSON.parse(raw = raw.trim());
       }
       catch(ex){
         log.warn("FAILED TO PARSE PACKET",res.__meta.ip,ex.message);
       }
-      console.log("received:",raw);
+      log.verbose("received:",raw);
     });
     ws.sendPacket({msg:"msg from srv"});
   });

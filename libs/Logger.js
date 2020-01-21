@@ -2,6 +2,7 @@
 const fs = require("fs");
 const path = require("path");
 const os = require("os");
+const moment = require("moment");
 
 function Logger(cfg){
 
@@ -9,6 +10,9 @@ function Logger(cfg){
   if(!cfg.hasOwnProperty("display_level")) cfg.display_level = false;
   if(!cfg.hasOwnProperty("out_dir")) cfg.out_dir = path.join("./logs");
   if(!cfg.hasOwnProperty("pipe_stdout")) cfg.pipe_stdout = true;
+
+  cfg.stdoutWidth = process.stdout.columns;
+  cfg.stdoutHeight = process.stdout.rows;
 
   try{
     let stats = fs.lstatSync(cfg.out_dir);
@@ -52,8 +56,10 @@ function Logger(cfg){
     if(cfg.display_level)
       outStream.write(LEVELS[lv]+" ");
     outStream.write(lv+"-"+Date.now()+"-"+args.join(" ")+os.EOL);
-    if(cfg.pipe_stdout)
-      process.stdout.write(args.join(" ")+os.EOL);
+    if(cfg.pipe_stdout){
+      let ts = "["+moment().format("LTS")+"]";
+      process.stdout.write(args.join(" ").padEnd(cfg.stdoutWidth-ts.length," ")+'\x1b[36m'+ts+'\x1b[0m'+os.EOL);
+    }
   };
 
   logger.verbose = function __verbose(){
