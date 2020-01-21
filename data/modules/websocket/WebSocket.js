@@ -46,7 +46,9 @@ function WebSocketServer(L,httpServer,cfg){
       }
       log.verbose("received:",raw);
     });
-    ws.sendPacket({msg:"msg from srv"});
+    setTimeout(function(){
+      ws.sendPacket({oc:"alert",msg:"bla bla hahahaha"});
+    },2000);
   });
 
 
