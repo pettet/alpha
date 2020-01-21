@@ -14,6 +14,7 @@ function KasperHost(L,httpServer){
   });
 
   var analytics = new (require(path.join(L.DATA,"modules/analytics")))(L,dbConn,httpServer,{});
+  var wsServer = new (require(path.join(L.DATA,"modules/websocket")).WebSocketServer)(L,httpServer,{});
   var themer = new (require(path.join(L.DATA,"modules/themer")))(L,httpServer,{});
 
   httpServer.getRouter().static("/images",path.join(L.DATA,"apps/kasper-host/images"));
@@ -66,21 +67,6 @@ function KasperHost(L,httpServer){
    res.writeHead(200);
    res.end("test");
   });
-
-
-
-/*
-  dbConn.getConnection(function(err,connection){
-    if(err)
-      throw err;
-    connection.query("select 1;",function(err,results,fields){
-      connection.release();
-      if(err)
-        throw err;
-      console.log(">>",results);
-    });
-  });
-*/
 
 
 

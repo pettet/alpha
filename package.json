@@ -9,7 +9,10 @@
   "private": true,
   "author": "Robert Pettet <pettet@hotmail.ca> (https://kasper.host/)",
   "dependencies": {
+    "bufferutil": "^4.0.1",
     "connect": "^3.7.0",
-    "mysql": "github:mysqljs/mysql"
+    "mysql": "github:mysqljs/mysql",
+    "utf-8-validate": "^5.0.2",
+    "ws": "^7.2.1"
   }
 }
