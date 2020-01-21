@@ -5,15 +5,19 @@
 function Analytics(L,dbConn,httpServer,cfg){
 
   var conn;
-  dbConn.getConnection(function(err,connection){
-    if(err){
-      console.log("ANA.logHit",err);
-      return;
-    }
-    conn = connection;
-    //conn.release();
-  });
 
+  function connectToDb(next){
+    if(typeof next!=="function") next = L.NOOP;
+    dbConn.getConnection(function(err,connection){
+      if(err){
+        console.log("ANA DB ERR: "+err.message);
+        return next(err);
+      }
+      conn = connection;
+      next();
+    });
+  }
+  connectToDb();
 
   function logHit(req,res){
     res.on("finish",function __onResFinish(){
@@ -42,6 +46,20 @@ function Analytics(L,dbConn,httpServer,cfg){
   }
 
   httpServer.getRouter().use(function __getAnalytics(req,res,next){
+    //console.log(conn);
+    if(!conn||conn.state!=="authenticated"){
+      connectToDb(function(err){
+        if(err){
+          res.setHeader("Content-type","text/html");
+          res.writeHead(500);
+          res.end("failed to connect to database");
+          return;
+        }
+        logHit(req,res);
+        next();
+      });
+      return;
+    }
     logHit(req,res);
     next();
   });

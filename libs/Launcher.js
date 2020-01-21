@@ -8,6 +8,7 @@ function Launcher(){
   L.ROOT = path.join("/home/pettet","alpha");
   L.LIBS = path.join(L.ROOT,"libs");
   L.DATA = path.join(L.ROOT,"data");
+  L.NOOP = function __noop(){};
 
   var log = L.log = new (require(path.join(L.LIBS,"Logger.js")))({
     out_dir: path.join(L.ROOT,"logs")
