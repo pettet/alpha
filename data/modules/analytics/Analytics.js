@@ -17,8 +17,18 @@ function Analytics(L,dbConn,httpServer,cfg){
 
   function logHit(req,res){
     res.on("finish",function __onResFinish(){
-      //console.log("__onResFinish");
-      //include a res.statusCode update here
+      setTimeout(function(){
+        if(res.__meta.ana_hit_id){
+          conn.query("update alpha.m_ana_hits set status_code=? where id=? limit 1;",[
+            res.statusCode,
+            res.__meta.ana_hit_id
+          ],function(err,results,fields){
+            if(err)
+              throw err;
+            //console.log(">>",results);
+          });
+        }
+      },100);
     });
     conn.query("insert into alpha.m_ana_hits (url,ip,headers) values (?,?,?);",[
       req.url,
@@ -27,7 +37,7 @@ function Analytics(L,dbConn,httpServer,cfg){
     ],function(err,results,fields){
       if(err)
         throw err;
-      //console.log(">>",results);
+      res.__meta.ana_hit_id = results.insertId;
     });
   }
 
