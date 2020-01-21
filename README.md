@@ -1,3 +1,3 @@
 # alpha
 
-[kasper.host](https://kasper.host/)
+LIVE [kasper.host](https://kasper.host/)
