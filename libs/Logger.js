@@ -29,6 +29,32 @@ function Logger(cfg){
 
   var logger = this;
 
+  const COLORS = {
+    "RESET": '\x1b[0m',
+    "BRIGHT": '\x1b[1m',
+    "DIM": '\x1b[2m',
+    "UNDERSCORE": '\x1b[4m',
+    "BLINK": '\x1b[5m',
+    "REVESE": '\x1b[7m',
+    "HIDDEN": '\x1b[8m',
+    "FG_BLACK": '\x1b[30m',
+    "FG_RED": '\x1b[31m',
+    "FG_GREEN": '\x1b[32m',
+    "FG_YELLOW": '\x1b[33m',
+    "FG_BLUE": '\x1b[34m',
+    "FG_MAGENTA": '\x1b[35m',
+    "FG_CYAN": '\x1b[36m',
+    "FG_WHITE": '\x1b[37m',
+    "BG_BLACK": '\x1b[40m',
+    "BG_RED": '\x1b[41m',
+    "BG_GREEN": '\x1b[42m',
+    "BG_YELLOW": '\x1b[43m',
+    "BG_BLUE": '\x1b[44m',
+    "BG_MAGENTA": '\x1b[45m',
+    "BG_CYAN": '\x1b[46m',
+    "BG_WHITE": '\x1b[47m',
+  };
+
   const LEVELS = {
     1: "VERBOSE",
     2: "DEBUG",
@@ -58,7 +84,8 @@ function Logger(cfg){
     outStream.write(lv+"-"+Date.now()+"-"+args.join(" ")+os.EOL);
     if(cfg.pipe_stdout){
       let ts = "["+moment().format("LTS")+"]";
-      process.stdout.write(args.join(" ").padEnd(cfg.stdoutWidth-ts.length," ")+'\x1b[36m'+ts+'\x1b[0m'+os.EOL);
+      let color = "FG_YELLOW";
+      process.stdout.write(args.join(" ").padEnd(cfg.stdoutWidth-ts.length," ")+COLORS[color]+ts+COLORS.RESET+os.EOL);
     }
   };
 
