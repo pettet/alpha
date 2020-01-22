@@ -4,7 +4,7 @@ const url = require("url");
 const moment = require("moment");
 
 
-function WebSocketServer(L,httpServer,cfg){
+function WebSocketServer(L,httpServer,wsMw,cfg){
 
   const log = L.log;
   if(typeof cfg!=="object") cfg = {};
@@ -20,8 +20,10 @@ function WebSocketServer(L,httpServer,cfg){
         stts: Date.now(),
         ip: req.headers["x-forwarded-for"]
       };
-      wsServer.handleUpgrade(req,socket,head,function _onUpgrade(ws){
-        wsServer.emit("connection",ws,req);
+      wsMw(req,socket,head,function(err){
+        wsServer.handleUpgrade(req,socket,head,function _onUpgrade(ws){
+          wsServer.emit("connection",ws,req);
+        });
       });
     }
     else{
@@ -46,9 +48,9 @@ function WebSocketServer(L,httpServer,cfg){
       }
       log.verbose("received:",raw);
     });
-    setTimeout(function(){
+    /*setTimeout(function(){
       ws.sendPacket({oc:"alert",msg:"bla bla hahahaha"});
-    },2000);
+    },2000);*/
   });
 
 

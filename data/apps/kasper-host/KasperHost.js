@@ -14,7 +14,9 @@ function KasperHost(L,httpServer){
   });
 
   var analytics = new (require(path.join(L.DATA,"modules/analytics")))(L,dbConn,httpServer,{});
-  var wsServer = new (require(path.join(L.DATA,"modules/websocket")).WebSocketServer)(L,httpServer,{});
+  var trafficController = new (require(path.join(L.DATA,"modules/traffic-controller")))(L,dbConn,{});
+  httpServer.getRouter().use(trafficController.mw);
+  var wsServer = new (require(path.join(L.DATA,"modules/websocket")).WebSocketServer)(L,httpServer,trafficController.wsMw,{});
   var themer = new (require(path.join(L.DATA,"modules/themer")))(L,httpServer,{});
 
   httpServer.getRouter().static("/images",path.join(L.DATA,"apps/kasper-host/images"));
