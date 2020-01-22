@@ -10,7 +10,7 @@ function Analytics(L,dbConn,httpServer,cfg){
     if(typeof next!=="function") next = L.NOOP;
     dbConn.getConnection(function(err,connection){
       if(err){
-        console.log("ANA DB ERR: "+err.message);
+        log.error("ANA DB ERR: "+err.message);
         return next(err);
       }
       conn = connection;

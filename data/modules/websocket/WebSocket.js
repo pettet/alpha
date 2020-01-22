@@ -46,7 +46,7 @@ function WebSocketServer(L,httpServer,wsMw,cfg){
       catch(ex){
         log.warn("FAILED TO PARSE PACKET",res.__meta.ip,ex.message);
       }
-      log.verbose("received:",raw);
+      log.verbose("WS CLI MSG",raw);
     });
     /*setTimeout(function(){
       ws.sendPacket({oc:"alert",msg:"bla bla hahahaha"});
