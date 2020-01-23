@@ -50,7 +50,8 @@ function WebSocketServer(L,httpServer,wsMw,cfg){
     });
     /*setTimeout(function(){
       ws.sendPacket({oc:"alert",msg:"bla bla hahahaha"});
-    },2000);*/
+      console.log(ws._socket.session);
+    },100);*/
   });
 
 

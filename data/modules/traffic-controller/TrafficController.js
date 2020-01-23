@@ -45,6 +45,25 @@ function TrafficController(L,dbConn,cfg){
   },15*1000);
 
 
+
+  function Session(){
+    var sess = this;
+    var data = {};
+
+    sess.get = function __get(k){
+      if(!data.hasOwnProperty(k))
+        return undefined;
+      return data[k];
+    };
+    sess.set = function __set(k,v){
+      data[k] = v;
+    };
+
+    return sess;
+  }
+
+
+
   trafficController.mw = function __mw(req,res,next){
     if(BLOCKED_IPS.indexOf(res.__meta.ip)>-1){
       log.warn("BLOCKED IP REQ",res.__meta.ip,req.method,req.url);
@@ -53,6 +72,7 @@ function TrafficController(L,dbConn,cfg){
       res.end();
       return;
     }
+    req.session = new Session();
     next();
   };
 
@@ -62,6 +82,7 @@ function TrafficController(L,dbConn,cfg){
       socket.destroy();
       return;
     }
+    socket.session = new Session();
     next();
   };
 
