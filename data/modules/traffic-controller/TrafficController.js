@@ -64,6 +64,21 @@ function TrafficController(L,dbConn,cfg){
 
 
 
+  function createSession(req,next){
+    let session = new Session();
+    process.nextTick(next,session);
+  }
+
+  function loadSession(sid,next){
+    process.nextTick(next,null,null);
+  }
+
+  function saveSession(session,next){
+    process.nextTick(next);
+  }
+
+
+
   trafficController.mw = function __mw(req,res,next){
     if(BLOCKED_IPS.indexOf(res.__meta.ip)>-1){
       log.warn("BLOCKED IP REQ",res.__meta.ip,req.method,req.url);
@@ -72,7 +87,23 @@ function TrafficController(L,dbConn,cfg){
       res.end();
       return;
     }
-    req.session = new Session();
+    let sid = req.cookies.__sid;
+    if(sid){
+      loadSession(sid,function(err,session){
+        if(err)
+          throw err;
+        if(!session){
+          createSession(function(err,session){
+            if(err)
+              throw err;
+            if(session)
+              req.session = session;
+          });
+          return;
+        }
+        req.session = session;
+      });
+    }
     next();
   };
 
