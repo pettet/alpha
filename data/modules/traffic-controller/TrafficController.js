@@ -46,9 +46,21 @@ function TrafficController(L,dbConn,cfg){
 
 
 
-  function Session(){
+
+
+  function Session(_raw){
     var sess = this;
+    sess.SID = -1;
     var data = {};
+
+    if(!typeof _raw==="object"){
+      log.error("TrafficController: INIT SESSION WITH WRONG FORMATTED ARGS");
+      _raw = {};
+    }
+    for(let i in _raw){
+      if(i==="id") sess.SID = _raw[i];
+      data[i] = _raw[i];
+    }
 
     sess.get = function __get(k){
       if(!data.hasOwnProperty(k))
@@ -64,22 +76,57 @@ function TrafficController(L,dbConn,cfg){
 
 
 
+
+
   function createSession(req,next){
-    let session = new Session();
-    process.nextTick(next,session);
+    //console.log(req);
+    conn.query("insert into sessions (ip,origin,user_agent) values (?,?,?);",[
+      req.__meta.ip,
+      req.headers["referer"]||"",
+      req.headers["user-agent"]||""
+    ],function(err,results,fields){
+      if(err) return process.nextTick(next,err);
+      if(!results) return process.nextTick(next,null,null);
+      log.verbose("TrafficController.createSession new sid",results.insertId);
+      let session = new Session({id:results.insertId,ip:req.__meta.ip});
+      process.nextTick(next,null,session);
+    });
   }
 
+
   function loadSession(sid,next){
-    process.nextTick(next,null,null);
+    conn.query("select * from sessions where id=? limit 1;",[sid],function(err,results,fields){
+      if(err) return process.nextTick(next,err);
+      if(results[0]){
+        //log.verbose("TrafficController.loadSession sid",results[0].id);
+        let session = new Session(results[0]);
+        process.nextTick(next,null,session);
+        return;
+      }
+      process.nextTick(next,null,null);
+    });
   }
+
 
   function saveSession(session,next){
     process.nextTick(next);
+
+    conn.query("update sessions set ts_lastseen=? where id=? limit 1;",[
+      moment().format("YYYY-MM-DD HH:mm:ss"),
+      session.SID
+    ],function(err,results,fields){
+      //console.log(">>>",arguments);
+      if(err) return process.nextTick(next,err);
+      if(!results) return process.nextTick(next,null,null);
+      let session = new Session({ip:req.__meta.ip});
+      process.nextTick(next,null,session);
+    });
   }
 
 
 
   trafficController.mw = function __mw(req,res,next){
+    req.__meta = { ip: res.__meta.ip };
     if(BLOCKED_IPS.indexOf(res.__meta.ip)>-1){
       log.warn("BLOCKED IP REQ",res.__meta.ip,req.method,req.url);
       res.setHeader("Content-type","text/plain");
@@ -93,19 +140,33 @@ function TrafficController(L,dbConn,cfg){
         if(err)
           throw err;
         if(!session){
-          createSession(function(err,session){
+          createSession(req,function(err,session){
             if(err)
               throw err;
-            if(session)
+            if(session){
               req.session = session;
+              res.setHeader("Set-cookie","__sid="+req.session.SID);
+              process.nextTick(next);
+            }
           });
           return;
         }
         req.session = session;
+        process.nextTick(next);
       });
+      return;
     }
-    next();
+    createSession(req,function(err,session){
+      if(err)
+        throw err;
+      if(session){
+        req.session = session;
+        res.setHeader("Set-cookie","__sid="+req.session.SID);
+      }
+      process.nextTick(next);
+    });
   };
+
 
   trafficController.wsMw = function __wsMw(req,socket,head,next){
     if(BLOCKED_IPS.indexOf(req.__meta.ip)>-1){
@@ -113,8 +174,13 @@ function TrafficController(L,dbConn,cfg){
       socket.destroy();
       return;
     }
+
+    //====
+    //needs some attn here
     socket.session = new Session();
-    next();
+    //====
+
+    process.nextTick(next);
   };
 
 }
