@@ -4,6 +4,14 @@ const path = require("path");
 function KasperHost(L,httpServer){
 
   var log = L.log;
+  var args = {};
+  if(process.argv[2]){
+    try{
+      args = require(process.argv[2]);
+    }catch(ex){
+      throw ex;
+    }
+  }
   log.info("KasperHost","init");
 
   var dbConn = new (require(path.join(L.LIBS,"DatabaseConnection.js")))(L,{
@@ -22,6 +30,22 @@ function KasperHost(L,httpServer){
   httpServer.getRouter().static("/images",path.join(L.DATA,"apps/kasper-host/images"));
 
   themer.addGlobalReplacement("BrandName","Kasper Security");
+
+
+
+
+
+  var emailQueue = new (require(path.join(L.DATA,"modules/email-queue")))(L,dbConn,{
+    gmailEmail: "sikken83@gmail.com",
+    gmailPwd: args.gmailPwd
+  });
+
+
+
+
+
+
+
 
   httpServer.getRouter().use(function __getIndex(req,res,next){
     if(req.method!=="GET"||req.path!=="/")
