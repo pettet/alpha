@@ -14,8 +14,8 @@ create table alpha.m_ana_hits (
 create table alpha.sessions (
 	id int unsigned auto_increment primary key,
 	ip varchar(255) not null,
-    origin varchar(255),
-    user_agent text,
+  origin varchar(255),
+  user_agent text,
 	last_action longtext,
 	ts_lastseen timestamp,
 	ts_created timestamp default CURRENT_TIMESTAMP on update CURRENT_TIMESTAMP

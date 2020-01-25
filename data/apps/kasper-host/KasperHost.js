@@ -34,15 +34,20 @@ function KasperHost(L,httpServer){
 
 
 
-
   var emailQueue = new (require(path.join(L.DATA,"modules/email-queue")))(L,dbConn,{
-    gmailEmail: "sikken83@gmail.com",
-    gmailPwd: args.gmailPwd
+    gmailUser: args.gmailUser,
+    gmailClientId: args.gmailClientId,
+    gmailClientSecret: args.gmailClientSecret,
+    gmailRefreshToken: args.gmailRefreshToken,
   });
 
 
-
-
+  emailQueue.sendEmail({
+    to: "pettet@hotmail.ca",
+    from: "App Name <sikken83@gmail.com>",
+    subject: "Test Subject",
+    html: "<p>how much <b>wood</b> can a wood <u>chuck</u> chuck, if a wood <i>chuck</i> could chuck <b>wood></b>??</p>"
+  },function(err,res){});
 
 
 
