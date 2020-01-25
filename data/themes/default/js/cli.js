@@ -1,52 +1,58 @@
 
-function WebSocketCli(){
 
-  var ws = new WebSocket("wss://kasper.host/api",["test-proto-000"]);
-  var wsCli = this;
 
-  var _events = {};
 
-  wsCli.on = function __on(oc,next){
-    if(!_events.hasOwnProperty(oc)) _events[oc] = [];
-    _events[oc].push(next);
-  };
 
-  ws.sendPacket = function _sendPacket(packet){
-    ws.send(JSON.stringify(packet));
-  };
+var CACHE_NAME = "kasper_v0_alpha";
+var urlsToCache = [
+  "/",
+  "/services",
+  "/contact",
+  "/images/kasper_16.png",
+  "/images/kasper_256.png",
+  "/js/jquery-3.4.1.min.js",
+  "/js/wrapper.js",
+  "/js/cli.js",
+];
 
-  ws.onopen = function __onopen(){
-    ws.sendPacket({msg:"msg from cli"});
-  };
 
-  ws.onerror = function __onerror(err){
-    console.log("ws error "+err);
-  };
+self.addEventListener("install",function(event){
+  console.log("cli.js install",event);
+  event.waitUntil(
+    caches.open(CACHE_NAME)
+      .then(function(cache){
+        console.log("Opened cache");
+        return cache.addAll(urlsToCache);
+      })
+  );
+});
 
-  ws.onmessage = function __onmessage(ev){
-    let packet;
-    try{
-      packet = JSON.parse(ev.data.trim());
-    }
-    catch(ex){
-      console.log("failed to parse incomming packet:",ex.message);
-    }
-    console.log("server:",packet);
-    if(!packet.oc){
-      console.log("CORRUPT PACKET WITH NO OC");
-      return;
-    }
-    if(_events.hasOwnProperty(packet.oc)){
-      for(let i in _events[packet.oc]){
-        _events[packet.oc][i](ws,packet);
-      }
-    }
-  };
+self.addEventListener("fetch",function(event){
+  console.log("cli.js fetch",event);
+  event.respondWith(
+    // magic goes here
+  );
+});
 
-}
+self.addEventListener("activate",function(event){
+  var cacheWhitelist = ["kasper_v0_alpha"];
+  event.waitUntil(
+    caches.keys().then(function(cacheNames){
+      return Promise.all(
+        cacheNames.map(function(cacheName){
+          if(cacheWhitelist.indexOf(cacheName)===-1){
+            return caches.delete(cacheName);
+          }
+        })
+      );
+    })
+  );
+});
 
-var wsCli = new WebSocketCli;
 
-wsCli.on("alert",function(ws,packet){
-  alert(packet.msg);
+
+console.log("i am in cli.js");
+
+self.addEventListener("message",function(ev){
+  console.log("cli.js message",ev);
 });

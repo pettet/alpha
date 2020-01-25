@@ -60,6 +60,9 @@ function KasperHost(L,httpServer){
     opts.replacements.PageTitle = "${BrandName}";
     opts.replacements.PageContent = "index page";
     themer.render(req,res,opts);
+
+    //console.log("__getIndex sid="+req.session.SID);
+
   });
 
 
@@ -101,32 +104,6 @@ function KasperHost(L,httpServer){
     opts.replacements.PageTitle = "Offline - ${BrandName}";
     opts.replacements.PageContent = "this seems to be an offline template";
     themer.render(req,res,opts);
-  });
-
-
-
-  httpServer.getRouter().use(function __getAppcache(req,res,next){
-    if(req.method!=="GET"||req.path!=="/alpha.appcache") return next();
-    res.setHeader("Content-type","text/cache-manifest");
-    res.writeHead(200);
-    res.end("CACHE MANIFEST\n"
-      +"# v1.7 alpha"
-      +"/images/kasper_16.png\n"
-      +"/images/kasper_32.png\n"
-      +"/images/kasper_128.png\n"
-      +"/images/kasper_64.png\n"
-      +"/images/kasper_256.png\n"
-      +"/images/kasper_512.png\n"
-      +"/js/jquery-3.4.1.min.js\n"
-      +"https://cdnjs.cloudflare.com/ajax/libs/semantic-ui/2.4.1/semantic.min.js\n"
-      +"https://cdnjs.cloudflare.com/ajax/libs/semantic-ui/2.4.1/semantic.min.css\n"
-      +"\n"
-      +"FALLBACK:\n"
-      +"/ /offline.html\n"
-      +"/services /offline.html\n"
-      +"/contact /offline.html\n"
-      +"\n"
-    );
   });
 
 

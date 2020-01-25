@@ -102,7 +102,12 @@ function TrafficController(L,dbConn,cfg){
       if(err) return process.nextTick(next,err);
       if(results[0]){
         //log.verbose("TrafficController.loadSession sid",results[0].id);
-        let session = new Session(results[0]);
+        let __raw = {};
+        for(let i in results[0]){
+          __raw[i] = results[0][i];
+        }
+        let session = new Session(__raw);
+        //console.log({session});
         process.nextTick(next,null,session);
         return;
       }
@@ -111,6 +116,9 @@ function TrafficController(L,dbConn,cfg){
   }
 
 
+  /*
+  * not implemented
+  */
   function saveSession(session,next){
     process.nextTick(next);
 

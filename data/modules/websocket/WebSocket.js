@@ -33,11 +33,14 @@ function WebSocketServer(L,httpServer,wsMw,cfg){
 
 
 
+
   wsServer.on("connection",function _onWsConnection(ws,req){
+
     log.verbose("WS CONNECTED",req.__meta.ip,req.headers["sec-websocket-protocol"]);
     ws.sendPacket = function _sendPacket(packet){
       ws.send(JSON.stringify(packet));
     };
+
     ws.on("message",function _onMsg(raw){
       let packet;
       try{
@@ -46,12 +49,14 @@ function WebSocketServer(L,httpServer,wsMw,cfg){
       catch(ex){
         log.warn("FAILED TO PARSE PACKET",res.__meta.ip,ex.message);
       }
-      log.verbose("WS CLI MSG",raw);
+      log.verbose("WS CLI MSG","["+(packet.oc||"")+"]",log.COLORS.FG_YELLOW+raw.length+log.COLORS.RESET,"byte(s)");
     });
+
     /*setTimeout(function(){
       ws.sendPacket({oc:"alert",msg:"bla bla hahahaha"});
       console.log(ws._socket.session);
     },100);*/
+
   });
 
 

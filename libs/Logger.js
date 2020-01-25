@@ -55,6 +55,8 @@ function Logger(cfg){
     "BG_WHITE": '\x1b[47m',
   };
 
+  logger.COLORS = COLORS;
+
   const LEVELS = {
     1: "VERBOSE",
     2: "DEBUG",
