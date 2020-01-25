@@ -63,10 +63,13 @@ function TrafficController(L,dbConn,cfg){
     }
 
     sess.get = function __get(k){
+      if(k==="is_logged") return data.access_level>=0;
+      if(k==="is_admin") return data.access_level>=100;
       if(!data.hasOwnProperty(k))
         return undefined;
       return data[k];
     };
+
     sess.set = function __set(k,v){
       data[k] = v;
     };
