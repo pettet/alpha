@@ -52,8 +52,8 @@ function KasperHost(L,httpServer){
   });
 
   wsServer.onPacket(function __onWsPacket(ws,packet){
-    console.log(packet);
-    /*if(packet.ua==="Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/79.0.3945.130 Safari/537.36"){
+    //console.log(packet);
+    /*if(packet.oc==="iam"&&packet.ua==="Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/79.0.3945.130 Safari/537.36"){
       ws.sendPacket({oc:"set-pg-title",title:"Kasper Security"});
       ws.sendPacket({oc:"set-pg-body",body:"<p>What <b>is</b> this?</p>"});
     }*/
