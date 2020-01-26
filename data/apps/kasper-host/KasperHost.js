@@ -47,7 +47,7 @@ function KasperHost(L,httpServer){
 
   wsServer.onConnect(function __onWsConnect(ws,req){
     if(req.__meta.ip==="192.168.1.1"){
-      console.log("local network");
+      //console.log("local network");
     }
   });
 

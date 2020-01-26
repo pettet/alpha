@@ -1,3 +1,5 @@
 logs/
 node_modules/
 changes.txt
+
+data/apps/kasper-host/images/flower*

@@ -1,4 +1,5 @@
 
+const qs = require("querystring");
 const moment = require("moment");
 
 function TrafficController(L,dbConn,cfg){
@@ -186,12 +187,36 @@ function TrafficController(L,dbConn,cfg){
       return;
     }
 
-    //====
-    //needs some attn here
-    socket.session = new Session();
-    //====
+    req.cookies = {};
+    if(req.headers.cookie){
+      let rawCookies = req.headers.cookie.trim().split(";");
+      for(let i in rawCookies){
+        let index = rawCookies[i].indexOf("=");
+        if(index>1){
+          req.cookies[rawCookies[i].slice(0,index).trim()] = rawCookies[i].slice(index+1).trim();
+        }
+      }
+    }
 
-    process.nextTick(next);
+    let sid = req.cookies.__sid;
+    if(sid){
+      loadSession(sid,function(err,session){
+        if(err||!session){
+          if(err)
+            log.warn("WS SESSION ERR -- "+err,req.__meta.ip);
+          else
+            log.warn("WS SESSION NOT FOUND -- KICKED",req.__meta.ip);
+          socket.destroy();
+          return;
+        }
+        socket.session = session;
+        process.nextTick(next);
+      });
+      return;
+    }
+
+    log.warn("WS SESSION NOT FOUND -- KICKED",req.__meta.ip);
+    socket.destroy();
   };
 
 }

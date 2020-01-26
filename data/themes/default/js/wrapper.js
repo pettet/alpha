@@ -27,6 +27,9 @@ jQuery(function($){
     });
 
 
+    wsCli.on("reload",function(ws,packet){
+      location.reload(true);
+    });
 
     wsCli.on("set-pg-title",function(ws,packet){
       document.title = packet.title;
@@ -60,8 +63,13 @@ function WebSocketCli(){
   var _events = {};
   var _onConnect = function(){};
   var _onClose = function(){};
+  var _reConnFirstMs = 3*1000;
+  var _reConnAfterMs = 10*1000;
+  var __reConnTO;
+  var __reConnAttempts = -1;
 
   wsCli.connect = function __connect(func){
+    __reConnAttempts++;
     ws = new WebSocket("wss://kasper.host/api",["test-proto-000"]);
     ws.sendPacket = function _sendPacket(packet){
       ws.send(JSON.stringify(packet));
@@ -69,16 +77,22 @@ function WebSocketCli(){
 
     ws.onopen = function __onopen(){
       console.log("Connected to server");
+      if(__reConnTO){
+        clearTimeout(__reConnTO);
+        __reConnTO = null;
+      }
       _onConnect(ws);
     };
 
     ws.onclose = function __onclose(){
-      console.log("Disconnected from server");
+      let ts =  __reConnAttempts<1 ? _reConnFirstMs : _reConnAfterMs;
+      console.log("Disconnected from server, reconnecting in",ts,"ms");
+      __reConnTO = setTimeout(wsCli.connect,ts);
       _onClose(ws);
     };
 
-    ws.onerror = function __onerror(err){
-      console.log("ws error "+err);
+    ws.onerror = function __onerror(err,b){
+      console.log("ws error ",err);
     };
 
     ws.onmessage = function __onmessage(ev){
