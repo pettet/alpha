@@ -13,6 +13,26 @@ function WebSocketServer(L,httpServer,wsMw,cfg){
     noServer: true
   });
 
+  var _onConnect = L.NOOP;
+  var _onPacket = L.NOOP;
+  var _onClose = L.NOOP;
+
+  this.onConnect = function __onConnect(func){
+    if(typeof func==="function")
+      _onConnect = func;
+  };
+
+  this.onPacket = function __onPacket(func){
+    if(typeof func==="function")
+      _onPacket = func;
+  };
+
+  this.onClose = function __onClose(func){
+    if(typeof func==="function")
+      _onClose = func;
+  };
+
+
   httpServer.on("upgrade",function _onHttpUpgrade(req,socket,head){
     const pathname = url.parse(req.url).pathname;
     if(pathname==="/api"){
@@ -37,9 +57,17 @@ function WebSocketServer(L,httpServer,wsMw,cfg){
   wsServer.on("connection",function _onWsConnection(ws,req){
 
     log.verbose("WS CONNECTED",req.__meta.ip,req.headers["sec-websocket-protocol"]);
+
     ws.sendPacket = function _sendPacket(packet){
-      ws.send(JSON.stringify(packet));
+      let oc = packet.oc||"";
+      ws.send(packet = JSON.stringify(packet));
+      log.verbose("WS OUT","["+(oc||"")+"]",packet.length,"byte(s)");
     };
+
+    ws.on("close",function __onClose(a,b){
+      log.verbose("WS DISCONNECTED",req.__meta.ip);
+      _onClose(ws,a,b);
+    });
 
     ws.on("message",function _onMsg(raw){
       let packet;
@@ -49,14 +77,11 @@ function WebSocketServer(L,httpServer,wsMw,cfg){
       catch(ex){
         log.warn("FAILED TO PARSE PACKET",res.__meta.ip,ex.message);
       }
-      log.verbose("WS CLI MSG","["+(packet.oc||"")+"]",log.COLORS.FG_YELLOW+raw.length+log.COLORS.RESET,"byte(s)");
+      log.verbose("WS  IN","["+req.__meta.ip+"]",(packet.oc||"--"),raw.length,"byte(s)");
+      _onPacket(ws,packet);
     });
 
-    /*setTimeout(function(){
-      ws.sendPacket({oc:"alert",msg:"bla bla hahahaha"});
-      console.log(ws._socket.session);
-    },100);*/
-
+    _onConnect(ws,req);
   });
 
 

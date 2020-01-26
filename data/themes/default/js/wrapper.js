@@ -1,7 +1,6 @@
 
 jQuery(function($){
 
-console.log("i am in wrapper.js");
 
   if("serviceWorker" in navigator){
       navigator.serviceWorker.register("/js/cli.js",{scope:"./js/"}).then(function(reg){
@@ -16,9 +15,24 @@ console.log("i am in wrapper.js");
   function init(){
     var wsCli = new WebSocketCli;
 
+
+
+
+
+    wsCli.on("set-pg-title",function(ws,packet){
+      document.title = packet.title;
+    });
+
+    wsCli.on("set-pg-body",function(ws,packet){
+      $("body").html(packet.body);
+    });
+
     wsCli.on("alert",function(ws,packet){
       alert(packet.msg);
     });
+
+
+
   }
 
   init();
@@ -45,7 +59,12 @@ function WebSocketCli(){
   };
 
   ws.onopen = function __onopen(){
+    console.log("Connected to server");
     ws.sendPacket({oc:"iam",ua:navigator.userAgent});
+  };
+
+  ws.onclose = function __onclose(){
+    console.log("Disconnected from server");
   };
 
   ws.onerror = function __onerror(err){

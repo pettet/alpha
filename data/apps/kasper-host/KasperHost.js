@@ -13,7 +13,6 @@ function KasperHost(L,httpServer){
     }
   }
   log.info("KasperHost","init");
-
   var dbConn = new (require(path.join(L.LIBS,"DatabaseConnection.js")))(L,{
     host: "192.168.1.104",
     user: "pettet",
@@ -41,6 +40,30 @@ function KasperHost(L,httpServer){
     gmailClientSecret: args.gmailClientSecret,
     gmailRefreshToken: args.gmailRefreshToken,
   });
+
+
+
+
+
+  wsServer.onConnect(function __onWsConnect(ws,req){
+    if(req.__meta.ip==="192.168.1.1"){
+      console.log("local network");
+    }
+  });
+
+  wsServer.onPacket(function __onWsPacket(ws,packet){
+    console.log(packet);
+    /*if(packet.ua==="Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/79.0.3945.130 Safari/537.36"){
+      ws.sendPacket({oc:"set-pg-title",title:"Kasper Security"});
+      ws.sendPacket({oc:"set-pg-body",body:"<p>What <b>is</b> this?</p>"});
+    }*/
+  });
+
+  wsServer.onClose(function __onWsClose(ws){
+  });
+
+
+
 
 
 
