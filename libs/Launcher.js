@@ -15,10 +15,17 @@ function Launcher(){
     pipe_stdout: true
   });
 
-  log.info("Launcher","init");
+  log.info("Launcher","["+process.argv[2]+"]");
 
-  var appDir = path.join(L.DATA,"apps","kasper-host");
-  var webapp = new (require(path.join(L.DATA,"modules","webapp")))(L,appDir);
+  switch(process.argv[2]){
+    case "kasper-host":
+      var appDir = path.join(L.DATA,"apps","kasper-host");
+      var webapp = new (require(path.join(L.DATA,"modules","webapp")))(L,appDir);
+      break;
+    case "mary":
+      var webapp = new (require(path.join(L.DATA,"apps","mary")))(L);
+      break;
+  }
 
 }
 

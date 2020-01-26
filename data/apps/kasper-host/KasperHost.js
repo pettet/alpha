@@ -5,12 +5,10 @@ function KasperHost(L,httpServer){
 
   var log = L.log;
   var args = {};
-  if(process.argv[2]){
-    try{
-      args = require(process.argv[2]);
-    }catch(ex){
-      throw ex;
-    }
+  try{
+    args = require("/home/pettet/kas.json");
+  }catch(ex){
+    throw ex;
   }
   log.info("KasperHost","init");
   var dbConn = new (require(path.join(L.LIBS,"DatabaseConnection.js")))(L,{
