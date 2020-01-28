@@ -91,7 +91,7 @@ function TrafficController(L,dbConn,cfg){
     ],function(err,results,fields){
       if(err) return process.nextTick(next,err);
       if(!results) return process.nextTick(next,null,null);
-      log.verbose("TrafficController.createSession new sid",results.insertId);
+      //log.verbose("TrafficController.createSession new sid",results.insertId);
       let session = new Session({id:results.insertId,ip:req.__meta.ip});
       process.nextTick(next,null,session);
     });

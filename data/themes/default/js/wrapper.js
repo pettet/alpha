@@ -67,16 +67,23 @@ function WebSocketCli(){
   var _reConnAfterMs = 10*1000;
   var __reConnTO;
   var __reConnAttempts = -1;
+  var __connected = false;
 
   wsCli.connect = function __connect(func){
     __reConnAttempts++;
-    ws = new WebSocket("wss://kasper.host/api",["test-proto-000"]);
+    try{
+      ws = new WebSocket("wss://kasper.host/api",["test-proto-000"]);
+    }catch(ex){
+      console.log("EX",ex);
+    }
     ws.sendPacket = function _sendPacket(packet){
       ws.send(JSON.stringify(packet));
     };
 
     ws.onopen = function __onopen(){
+      __connected = ws.readyState===1;
       console.log("Connected to server");
+      //console.log(ws);
       if(__reConnTO){
         clearTimeout(__reConnTO);
         __reConnTO = null;
@@ -84,15 +91,27 @@ function WebSocketCli(){
       _onConnect(ws);
     };
 
-    ws.onclose = function __onclose(){
+    ws.onclose = function __onclose(ev){
+      console.log("ev.code",ev.code);
+      if(ev.code==3001){
+        console.log("disconnected");
+        _websocket = null;
+      }else{
+        _websocket = null;
+        console.log("server connection error");
+      }
+
+      __connected = ws.readyState===1;
       let ts =  __reConnAttempts<1 ? _reConnFirstMs : _reConnAfterMs;
       console.log("Disconnected from server, reconnecting in",ts,"ms");
+      //console.log(ws);
       __reConnTO = setTimeout(wsCli.connect,ts);
       _onClose(ws);
     };
 
     ws.onerror = function __onerror(err,b){
-      console.log("ws error ",err);
+      __connected = ws.readyState===1;
+      //console.log("ws error ",err);
     };
 
     ws.onmessage = function __onmessage(ev){

@@ -1,5 +1,7 @@
 
 const path = require("path");
+const { PerformanceObserver, performance } = require("perf_hooks");
+
 
 function KasperHost(L,httpServer){
 
@@ -17,6 +19,23 @@ function KasperHost(L,httpServer){
     password: "i-W15h.T15h_W4$_4_G0OD_1",
     database: "alpha"
   });
+
+
+
+
+
+  var _pingInterval = setInterval(function(){
+    var ping = performance.now();
+    process.nextTick(function(){
+      ping = (performance.now()-ping).toFixed(4);
+      let mem = process.memoryUsage();
+      log.debug("<stats>",ping," ","this",mem.rss/1024/1024);
+    });
+  },10*1000);
+
+
+
+
 
   var analytics = new (require(path.join(L.DATA,"modules/analytics")))(L,dbConn,httpServer,{});
   var trafficController = new (require(path.join(L.DATA,"modules/traffic-controller")))(L,dbConn,{});
