@@ -1,6 +1,7 @@
 
 const path = require("path");
 const { PerformanceObserver, performance } = require("perf_hooks");
+const moment = require("moment");
 
 
 function KasperHost(L,httpServer){
@@ -22,16 +23,40 @@ function KasperHost(L,httpServer){
 
 
 
+  var connection;
+  dbConn.getConnection(function(err,conn){
+    if(err){
+      log.error("STATS DB ERR: "+err.message);
+      return;
+    }
+    connection = conn;
+  });
 
-
+  var _prevCpuUsage = process.cpuUsage();
   var _pingInterval = setInterval(function(){
     var ping = performance.now();
     process.nextTick(function(){
       ping = (performance.now()-ping).toFixed(4);
       let mem = process.memoryUsage();
-      log.debug("<stats>",ping," ","this",mem.rss/1024/1024);
+      _prevCpuUsage = process.cpuUsage(_prevCpuUsage);
+      //log.debug("<stats>",ping," ","this",mem.rss/1024/1024);
+      connection.query("insert into stats_runtime (tick_ms,mem_rss,cpu_usr,cpu_sys) values (?,?,?,?);",[
+        ping,
+        mem.rss,
+        _prevCpuUsage.user,
+        _prevCpuUsage.system
+      ],function(err,results,fields){
+        if(err){
+          console.log("STATS SQL ERR",err);
+          //process.stdout.write(log.COLORS.FG_RED+"#"+log.COLORS.RESET);
+          return;
+        }
+        if(results&&results.affectedRows===1){
+           //process.stdout.write(log.COLORS.FG_GREEN+"#"+log.COLORS.RESET);
+        }
+      });
     });
-  },10*1000);
+  },1000);
 
 
 
@@ -190,6 +215,45 @@ function KasperHost(L,httpServer){
     res.setHeader("Content-type","text/plain");
     res.writeHead(200);
     res.end("test");
+  });
+
+
+  httpServer.getRouter().use(function __getStats(req,res,next){
+    if(req.method!=="GET"||req.path!=="/testStats") return next();
+    res.setHeader("Content-type","text/plain");
+    res.writeHead(200);
+
+    connection.query("select * from stats_runtime where added_ts between ? and ?;",[
+      moment().startOf("day").format("YYYY-MM-DD HH:mm:ss"),
+      moment().endOf("day").format("YYYY-MM-DD HH:mm:ss")
+    ],function(err,results,fields){
+      var html = "";
+      if(err){
+        console.log("SQL ERR",err);
+        html = "ERR: "+err.toString();
+      }
+      else if(results){
+        html = "results.length="+results.length+"\n\n";
+        let cpuHighest = -1;
+        let tickHighest = -1;
+        let tickHighestTs;
+        let cpuVals = [];
+        for(let i in results){
+          if(results[i].cpu_usr>cpuHighest)
+            cpuHighest = results[i].cpu_usr;
+          if(results[i].tick_ms>tickHighest){
+            tickHighest = results[i].tick_ms;
+            tickHighestTs = results[i].added_ts;
+          }
+          cpuVals.push(results[i].cpu_usr);
+        }
+        html += tickHighest.toFixed(4)+" - ping - highest ["+tickHighestTs+"]\n";
+        html += (cpuHighest/1024/1024).toFixed(4)+" -  cpu - highest\n";
+        //html += ( cpuVals.reduce(function(acc,val){return acc+val;},0)/cpuVals.length ).toFixed(4)+" - cpu - average\n";
+      }
+      res.end(html);
+    });
+
   });
 
 
