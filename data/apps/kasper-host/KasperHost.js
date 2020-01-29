@@ -1,4 +1,5 @@
 
+const os = require("os");
 const path = require("path");
 const { PerformanceObserver, performance } = require("perf_hooks");
 const moment = require("moment");
@@ -47,7 +48,7 @@ function KasperHost(L,httpServer){
         _prevCpuUsage.system
       ],function(err,results,fields){
         if(err){
-          console.log("STATS SQL ERR",err);
+          console.log("STATS SQL ERR",err.message);
           //process.stdout.write(log.COLORS.FG_RED+"#"+log.COLORS.RESET);
           return;
         }
@@ -218,8 +219,45 @@ function KasperHost(L,httpServer){
   });
 
 
-  httpServer.getRouter().use(function __getStats(req,res,next){
-    if(req.method!=="GET"||req.path!=="/testStats") return next();
+
+
+
+  httpServer.getRouter().use(function __getStats1(req,res,next){
+    if(req.method!=="GET"||req.path!=="/testStats1") return next();
+    res.setHeader("Content-type","text/plain");
+    res.writeHead(200);
+    let html = "\n";
+
+    let CPUS = os.cpus();
+    for(let i in CPUS){
+      let cpu = CPUS[i];
+      let model = cpu.model;
+      let graphics = "";
+      if(model.indexOf(" with ")>0){
+        model = model.split(" with ");
+        graphics = model[1];
+        model = model[0];
+      }
+      html += model+"\n";
+      //html += "  cpu -\t"+(cpu.times.user+cpu.times.nice+cpu.times.sys+cpu.times.irq)/cpu.times.idle+"";
+      html += "    speed \t"+(cpu.speed/1000)+"\n";
+      html += "     idle \t"+cpu.times.idle+"\n";
+      html += "     user \t"+cpu.times.user+"\n";
+      html += "     nice \t"+cpu.times.nice+"\n";
+      html += "      sys \t"+cpu.times.sys+"\n";
+      html += "      irq \t"+cpu.times.irq+"\n";
+      html += "\n\n\n";
+    }
+
+    res.end(html);
+  });
+
+
+
+
+
+  httpServer.getRouter().use(function __getStats2(req,res,next){
+    if(req.method!=="GET"||req.path!=="/testStats2") return next();
     res.setHeader("Content-type","text/plain");
     res.writeHead(200);
 
@@ -248,7 +286,7 @@ function KasperHost(L,httpServer){
           cpuVals.push(results[i].cpu_usr);
         }
         html += tickHighest.toFixed(4)+" - ping - highest ["+tickHighestTs+"]\n";
-        html += (cpuHighest/1024/1024).toFixed(4)+" -  cpu - highest\n";
+        html += (cpuHighest/1e6).toFixed(4)+" -  cpu - highest\n";
         //html += ( cpuVals.reduce(function(acc,val){return acc+val;},0)/cpuVals.length ).toFixed(4)+" - cpu - average\n";
       }
       res.end(html);
