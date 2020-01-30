@@ -228,11 +228,11 @@ function KasperHost(L,httpServer){
       __raw += raw;
     });
     req.on("end",function(){
-      console.log(qs.parse(__raw));
+      console.log("__getGitHub",qs.parse(__raw));
+      res.setHeader("Content-type","text/plain");
+      res.writeHead(200);
+      res.end("thank-you");
     });
-    res.setHeader("Content-type","text/plain");
-    res.writeHead(200);
-    res.end("thank-you");
   });
 
 
@@ -278,6 +278,26 @@ function KasperHost(L,httpServer){
       html += "      irq \t"+cpu.times.irq+"\n";
       html += "\n\n\n";
     }
+
+    html += "\n\n\n";
+
+    let INET = os.networkInterfaces();
+    for(let key in INET){
+      html += key+"\n";
+      for(let i in INET[key]){
+        let net = INET[key][i];
+        html += "    address \t"+net.address+"\n";
+        html += "    netmask \t"+net.netmask+"\n";
+        html += "     family \t"+net.family+"\n";
+        html += "        mac \t"+net.mac+"\n";
+        html += "   internal \t"+net.internal+"\n";
+        html += "    scopeid \t"+net.scopeid+"\n";
+        html += "       cidr \t"+net.cidr+"\n";
+        html += "\n";
+      }
+      html += "\n\n\n";
+    }
+
 
     res.end(html);
   });
