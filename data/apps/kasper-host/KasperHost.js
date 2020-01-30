@@ -219,7 +219,7 @@ function KasperHost(L,httpServer){
 
 
   httpServer.getRouter().use(function __getGitHub(req,res,next){
-    if(req.method!=="GET"||req.path!=="/__gh") return next();
+    if(req.method!=="POST"||req.path!=="/__gh") return next();
     log.info(req.method,req.url);
     let __raw = "";
     req.on("data",function(raw){
