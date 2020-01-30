@@ -2,6 +2,7 @@
 const os = require("os");
 const path = require("path");
 const { PerformanceObserver, performance } = require("perf_hooks");
+const qs = require("qs");
 const moment = require("moment");
 
 
@@ -227,7 +228,7 @@ function KasperHost(L,httpServer){
       __raw += raw;
     });
     req.on("end",function(){
-      console.log(__raw);
+      console.log(qs.parse(__raw));
     });
     res.setHeader("Content-type","text/plain");
     res.writeHead(200);
