@@ -221,6 +221,14 @@ function KasperHost(L,httpServer){
   httpServer.getRouter().use(function __getGitHub(req,res,next){
     if(req.path!=="/__gh") return next();
     log.info(req.method,req.url);
+    let __raw = "";
+    req.on("data",function(raw){
+      if(__raw.length>1e6) req.connection.destroy();
+      __raw += raw;
+    });
+    req.on("end",function(raw){
+      console.log(raw);
+    });
     res.setHeader("Content-type","text/plain");
     res.writeHead(200);
     res.end("thank-you");
