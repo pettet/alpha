@@ -214,6 +214,24 @@ function KasperHost(L,httpServer){
 
 
 
+
+
+
+
+  httpServer.getRouter().use(function __getGitHub(req,res,next){
+    if(req.path!=="/__gh") return next();
+    log.info(req.method,req.url);
+    res.setHeader("Content-type","text/plain");
+    res.writeHead(200);
+    res.end("thank-you");
+  });
+
+
+
+
+
+
+
   httpServer.getRouter().use(function __getTest(req,res,next){
     if(req.method!=="GET"||req.path!=="/test") return next();
     res.setHeader("Content-type","text/plain");
