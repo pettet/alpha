@@ -33,31 +33,34 @@ function KasperHost(L,httpServer){
     connection = conn;
   });
 
-  var _prevCpuUsage = process.cpuUsage();
   var _pingInterval = setInterval(function(){
     var ping = performance.now();
     process.nextTick(function(){
       ping = (performance.now()-ping).toFixed(4);
-      let mem = process.memoryUsage();
-      _prevCpuUsage = process.cpuUsage(_prevCpuUsage);
       //log.debug("<stats>",ping," ","this",mem.rss/1024/1024);
-      connection.query("insert into stats_runtime (tick_ms,mem_rss,cpu_usr,cpu_sys) values (?,?,?,?);",[
-        ping,
-        mem.rss,
-        _prevCpuUsage.user,
-        _prevCpuUsage.system
-      ],function(err,results,fields){
+      let mem = process.memoryUsage();
+      let keys = ["tick_ms","mem_rss"];
+      let vals = [ping,mem.rss];
+      let placeholders = ["?","?"];
+      let cpus = os.cpus();
+      let n = 0;
+      for(let i in cpus){
+        keys.push("cpu"+n+"_spd"); vals.push(cpus[i].speed);      placeholders.push("?");
+        keys.push("cpu"+n+"_idl"); vals.push(cpus[i].times.idle); placeholders.push("?");
+        keys.push("cpu"+n+"_usr"); vals.push(cpus[i].times.user); placeholders.push("?");
+        keys.push("cpu"+n+"_nic"); vals.push(cpus[i].times.nice); placeholders.push("?");
+        keys.push("cpu"+n+"_sys"); vals.push(cpus[i].times.sys);  placeholders.push("?");
+        keys.push("cpu"+n+"_irq"); vals.push(cpus[i].times.irq);  placeholders.push("?");
+        n++;
+      }
+      connection.query("insert into stats_runtime ("+keys.join(",")+") values ("+placeholders.join(",")+");",vals,function(err,results,fields){
         if(err){
           console.log("STATS SQL ERR",err.message);
-          //process.stdout.write(log.COLORS.FG_RED+"#"+log.COLORS.RESET);
           return;
-        }
-        if(results&&results.affectedRows===1){
-           //process.stdout.write(log.COLORS.FG_GREEN+"#"+log.COLORS.RESET);
         }
       });
     });
-  },1000);
+  },2000);
 
 
 

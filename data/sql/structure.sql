@@ -6,8 +6,8 @@ create table alpha.stats_runtime (
 	added_ts timestamp default CURRENT_TIMESTAMP primary key,
     tick_ms float,
     mem_rss float,
-    cpu_usr float,
-    cpu_sys float
+    cpu0_spd float, cpu0_idl float, cpu0_usr float, cpu0_nic float, cpu0_sys float, cpu0_irq float,
+    cpu1_spd float, cpu1_idl float, cpu1_usr float, cpu1_nic float, cpu1_sys float, cpu1_irq float
 );
 
 create table alpha.m_ana_hits (
