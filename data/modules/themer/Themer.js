@@ -27,7 +27,8 @@ function Themer(L,httpServer,cfg){
       };
     }
     if(templates[index]){
-      fs.createReadStream(path.join(templatesDir,templates[index])).on("end",next).pipe(stream,{end:false});
+      let file = templates[index].indexOf(path.sep)>=0 ? templates[index] : path.join(templatesDir,templates[index]);
+      fs.createReadStream(file).on("end",next).pipe(stream,{end:false});
       return;
     }
     next();

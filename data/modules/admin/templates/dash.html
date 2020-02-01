@@ -1,0 +1,137 @@
+
+
+<style>
+
+body{font-family:verdana;color:#444;}
+.line{fill:none;stroke:#ffab00;stroke-width:1;}
+.label{font-size:10px;}
+.axis path, .axis line{fill:none;stroke:#999;shape-rendering:crispEdges;}
+.axistext{font-size:10px;}
+
+</style>
+
+
+<div class="ui grid">
+  <div class="column" style="background-color:#fff;padding:4px 40px;border:1px solid #999;">
+    <svg id="adm_chart_0"></svg>
+  </div>
+</div>
+
+
+
+<script src="/js/d3.v5.min.js"></script>
+<script>jQuery(function($){
+
+
+
+
+function buildAdmChart0(data){
+
+    var height  = 200;
+    var width   = 700;
+    var hEach   = 40;
+
+    var margin = {top: 20, right: 15, bottom: 25, left: 25};
+    width =     width - margin.left - margin.right;
+    height =    height - margin.top - margin.bottom;
+
+    var svg = d3.select("svg#adm_chart_0")
+      .attr("width",  width + margin.left + margin.right)
+      .attr("height", height + margin.top + margin.bottom)
+      .append("g");
+
+
+  if(1==2){
+    svg.attr("transform", "translate(" + 0 + "," + 0 + ")");
+    svg.append("rect")
+      .attr("width", width + margin.left + margin.right)
+      .attr("height", height + margin.top + margin.bottom)
+      .attr("fill", "pink");
+      svg
+        .append("text")
+        .attr('x', 15)
+        .attr('y', 25)
+        .text("Error: Failed to connect.");
+    return;
+  }
+
+    var x = d3.scaleTime().range([0, width]);
+    x.domain(d3.extent(lineData, function(d) { return d.date; }));
+    var y = d3.scaleLinear().range([height, 0]);
+    y.domain([d3.min(lineData, function(d) { return d.nps; }) - 5, 100]);
+
+    var valueline = d3.line()
+            .x(function(d) { return x(d.date); })
+            .y(function(d) { return y(d.nps);  })
+            .curve(d3.curveMonotoneX);
+
+    svg.append("path")
+        .data([lineData])
+        .attr("class", "line")
+        .attr("d", valueline);
+
+    //  var xAxis_woy = d3.axisBottom(x).tickFormat(d3.timeFormat("Week %V"));
+    var xAxis_woy = d3.axisBottom(x).ticks(11).tickFormat(d3.timeFormat("%y-%b-%d")).tickValues(lineData.map(d=>d.date));
+
+    svg.append("g")
+            .attr("class", "x axis")
+            .attr("transform", "translate(0," + height + ")")
+            .call(xAxis_woy);
+
+    //  Add the Y Axis
+    //  svg.append("g").call(d3.axisLeft(y));
+
+    svg.selectAll(".dot")
+        .data(lineData)
+        .enter()
+        .append("circle") // Uses the enter().append() method
+        .attr("class", "dot") // Assign a class for styling
+        .attr("cx", function(d) { return x(d.date) })
+        .attr("cy", function(d) { return y(d.nps) })
+        .attr("r", 4);
+
+    svg.selectAll(".text")
+        .data(lineData)
+        .enter()
+        .append("text") // Uses the enter().append() method
+        .attr("class", "label") // Assign a class for styling
+        .attr("x", function(d, i) { return x(d.date) })
+        .attr("y", function(d) { return y(d.nps) })
+        .attr("dy", "-7")
+        .text(function(d) {return d.nps; });
+
+    svg.append('text')
+          .attr('x', 5)
+          .attr('y', -5)
+          .text("CPU Load");
+
+}
+
+
+
+
+
+  var lineData = [];
+  lineData.push({date:new Date(2020, 0, 01), nps:89});
+  lineData.push({date:new Date(2020, 0, 02), nps:96});
+  lineData.push({date:new Date(2020, 0, 03), nps:87});
+  lineData.push({date:new Date(2020, 0, 04), nps:99});
+  lineData.push({date:new Date(2020, 0, 05), nps:83});
+  lineData.push({date:new Date(2020, 0, 06), nps:93});
+  lineData.push({date:new Date(2020, 0, 07), nps:79});
+  lineData.push({date:new Date(2020, 0, 08), nps:94});
+  lineData.push({date:new Date(2020, 0, 09), nps:89});
+  lineData.push({date:new Date(2020, 0, 10), nps:93});
+  lineData.push({date:new Date(2020, 0, 11), nps:81});
+  lineData.sort(function(a,b){
+      return new Date(b.date) - new Date(a.date);
+  });
+
+buildAdmChart0(lineData);
+
+
+
+
+
+
+});</script>
