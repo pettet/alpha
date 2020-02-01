@@ -79,6 +79,7 @@ function KasperHost(L,httpServer){
   themer.addGlobalReplacement("BrandUrl","https://kasper.host/");
 
 
+  var adminPanel = new (require(path.join(L.DATA,"modules/admin")))(L,dbConn,httpServer,themer,{});
 
 
   var emailQueue = new (require(path.join(L.DATA,"modules/email-queue")))(L,dbConn,{
