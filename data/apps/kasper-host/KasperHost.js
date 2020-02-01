@@ -282,7 +282,7 @@ function KasperHost(L,httpServer){
     html += "\n\n\n";
 
     let INET = os.networkInterfaces();
-    for(let key in INET){
+        for(let key in INET){
       html += key+"\n";
       for(let i in INET[key]){
         let net = INET[key][i];
