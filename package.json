@@ -15,6 +15,6 @@
     "mysql": "github:mysqljs/mysql",
     "nodemailer": "^6.4.2",
     "utf-8-validate": "^5.0.2",
-    "ws": "^7.2.1"
+    "ws": "^7.4.6"
   }
 }
